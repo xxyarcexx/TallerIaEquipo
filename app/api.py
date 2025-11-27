@@ -5,18 +5,19 @@ from app.models_loader import model_white, model_red
 app = Flask(__name__)
 
 FEATURES = [
-    "fixed acidity",
-    "volatile acidity",
-    "citric acid",
-    "residual sugar",
+    "fixed_acidity",
+    "volatile_acidity",
+    "citric_acid",
+    "residual_sugar",
     "chlorides",
-    "free sulfur dioxide",
-    "total sulfur dioxide",
+    "free_sulfur_dioxide",
+    "total_sulfur_dioxide",
     "density",
     "pH",
     "sulphates",
     "alcohol"
 ]
+
 
 @app.route("/predict/white", methods=["POST"])
 def predict_white():
