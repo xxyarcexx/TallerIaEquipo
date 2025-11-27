@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
-from models_loader import model_white, model_red
+from app.models_loader import model_white, model_red
+
 
 app = Flask(__name__)
 

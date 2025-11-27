@@ -34,14 +34,3 @@ def predict_red(data: dict):
         raise Exception(f"Error en predicción red: {e}")
     
     
-print("WHITE FEATURES:", model_white.feature_names_in_)
-print("RED FEATURES:", model_red.feature_names_in_)
-import numpy as np
-
-print("WHITE CLASSES:", model_white.classes_)
-print("RED CLASSES:", model_red.classes_)
-
-# Probemos con datos random
-random_test = np.random.rand(1, len(model_white.feature_names_in_))
-print("WHITE RANDOM PRED:", model_white.predict(random_test))
-print("RED RANDOM PRED:", model_red.predict(random_test))
