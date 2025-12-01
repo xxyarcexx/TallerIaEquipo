@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Predicción de Calidad de Vino</title>
+  <style>
+    :root {
+      --wine-dark: #3b1114;
+      --wine-main: #6f1d1b;
+      --wine-accent: #b23a48;
+      --cream-bg: #f7f1e9;
+      --card-bg: #fcfaf7;
+      --border: #d0bfae;
+      --text-main: #2b2730;
+      --text-muted: #7b6f6a;
+      --good: #2f6f3e;
+      --bad: #a02127;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at top, #fdf7f2, #f0e2d3);
+      color: var(--text-main);
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--wine-dark), var(--wine-main));
+      color: #fdf6ee;
+      padding: 18px 0 16px;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+    }
+
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-title {
+      font-family: "Georgia", "Times New Roman", serif;
+      font-size: 1.6rem;
+      letter-spacing: 0.04em;
+    }
+
+    .brand-sub {
+      font-size: 0.85rem;
+      color: rgba(255, 240, 230, 0.85);
+    }
+
+    .badge-header {
+      border-radius: 999px;
+      border: 1px solid rgba(255, 245, 235, 0.5);
+      padding: 4px 10px;
+      font-size: 0.8rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background-color: rgba(0, 0, 0, 0.12);
+    }
+
+    .page {
+      max-width: 1100px;
+      margin: 26px auto 40px;
+      padding: 0 24px;
+    }
+
+    .subtitle {
+      margin-top: 4px;
+      margin-bottom: 24px;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      align-items: flex-start;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      box-shadow: 0 14px 30px rgba(80, 42, 30, 0.12);
+      padding: 18px 20px 22px;
+    }
+
+    .form-card {
+      flex: 1 1 380px;
+    }
+
+    .result-card {
+      flex: 1 1 320px;
+      min-height: 230px;
+    }
+
+    .section-title {
+      font-family: "Georgia", "Times New Roman", serif;
+      font-size: 1.15rem;
+      margin: 4px 0 12px;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border: 1px solid var(--border);
+      background-color: #f2e4d4;
+      color: #85624c;
+      margin-bottom: 4px;
+    }
+
+    .field-group {
+      margin-top: 10px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .field-hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 3px;
+    }
+
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 7px 9px;
+      font-size: 0.9rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s, background-color 0.15s;
+      background-color: #fdf7ee;
+    }
+
+    input[type="number"]:focus,
+    select:focus {
+      border-color: var(--wine-accent);
+      box-shadow: 0 0 0 2px rgba(178, 58, 72, 0.25);
+      background-color: #fffdf8;
+    }
+
+    button {
+      margin-top: 18px;
+      padding: 9px 18px;
+      font-size: 0.95rem;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--wine-main), var(--wine-accent));
+      color: white;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    button:hover {
+      filter: brightness(1.06);
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    #result-text {
+      margin-top: 10px;
+      font-size: 0.96rem;
+      white-space: pre-line;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: 1px solid transparent;
+    }
+
+    .badge-good {
+      background: rgba(47, 111, 62, 0.08);
+      color: var(--good);
+      border-color: rgba(47, 111, 62, 0.35);
+    }
+
+    .badge-bad {
+      background: rgba(160, 33, 39, 0.08);
+      color: var(--bad);
+      border-color: rgba(160, 33, 39, 0.35);
+    }
+
+    .good {
+      color: var(--good);
+      font-weight: 600;
+    }
+
+    .bad {
+      color: var(--bad);
+      font-weight: 600;
+    }
+
+    .json-label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 14px;
+      margin-bottom: 4px;
+    }
+
+    pre {
+      background: #151017;
+      color: #f5efe8;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 0.76rem;
+      overflow-x: auto;
+      margin-top: 4px;
+    }
+
+    @media (max-width: 840px) {
+      .container {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div>
+        <div class="brand-title">Vinanchia IA</div>
+        <div class="brand-sub">Modelo de aprendizaje automático para calidad de vino</div>
+      </div>
+      <div class="badge-header">
+        <span>🍷</span>
+        <span>Predicción binaria: vino bueno (quality ≥ 7)</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="page">
+    <p class="subtitle">
+      Ingrese los parámetros químicos de un vino tinto o blanco y el sistema estimará si es considerado de buena calidad
+      según los datos históricos del conjunto Wine Quality.
+    </p>
+
+    <div class="container">
+      <!-- FORMULARIO -->
+      <div class="card form-card">
+        <span class="pill">Datos de entrada</span>
+        <h2 class="section-title">Características del vino</h2>
+
+        <form id="wine-form" onsubmit="event.preventDefault(); predictWine();">
+          <div class="field-group">
+            <label for="wine_type">Tipo de vino</label>
+            <select id="wine_type" name="wine_type">
+              <option value="red">Tinto</option>
+              <option value="white">Blanco</option>
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label for="fixed_acidity">Acidez fija (g/dm³)</label>
+            <div class="field-hint">Componentes ácidos no volátiles (ejemplo típico: 6.0 – 10.0).</div>
+            <input type="number" id="fixed_acidity" name="fixed_acidity" step="0.01" required />
+          </div>
+
+          <div class="field-group">
+            <label for="volatile_acidity">Acidez volátil (g/dm³)</label>
+            <div class="field-hint">Ácidos que se evaporan fácilmente; valores altos suelen ser negativos.</div>
+            <input type="number" id="volatile_acidity" name="volatile_acidity" step="0.001" required />
+          </div>
+
+          <div class="field-group">
+            <label for="citric_acid">Ácido cítrico (g/dm³)</label>
+            <div class="field-hint">Contribuye a frescura y acidez; suele estar entre 0.0 y 1.0.</div>
+            <input type="number" id="citric_acid" name="citric_acid" step="0.001" required />
+          </div>
+
+          <div class="field-group">
+            <label for="residual_sugar">Azúcar residual (g/dm³)</label>
+            <div class="field-hint">Cantidad de azúcar que queda tras la fermentación.</div>
+            <input type="number" id="residual_sugar" name="residual_sugar" step="0.01" required />
+          </div>
+
+          <div class="field-group">
+            <label for="chlorides">Cloruros (g/dm³)</label>
+            <div class="field-hint">Relacionados con el contenido salino; valores altos afectan negativamente.</div>
+            <input type="number" id="chlorides" name="chlorides" step="0.0001" required />
+          </div>
+
+          <div class="field-group">
+            <label for="free_sulfur_dioxide">SO₂ libre (mg/dm³)</label>
+            <div class="field-hint">Dióxido de azufre en forma libre; protege frente a la oxidación.</div>
+            <input type="number" id="free_sulfur_dioxide" name="free_sulfur_dioxide" step="1" required />
+          </div>
+
+          <div class="field-group">
+            <label for="total_sulfur_dioxide">SO₂ total (mg/dm³)</label>
+            <div class="field-hint">Suma de las formas libre y combinada de dióxido de azufre.</div>
+            <input type="number" id="total_sulfur_dioxide" name="total_sulfur_dioxide" step="1" required />
+          </div>
+
+          <div class="field-group">
+            <label for="density">Densidad (g/cm³)</label>
+            <div class="field-hint">Relacionada con el contenido de agua, azúcar y alcohol.</div>
+            <input type="number" id="density" name="density" step="0.0001" required />
+          </div>
+
+          <div class="field-group">
+            <label for="pH">pH</label>
+            <div class="field-hint">Mide la acidez global; valores bajos indican vinos más ácidos.</div>
+            <input type="number" id="pH" name="pH" step="0.01" required />
+          </div>
+
+          <div class="field-group">
+            <label for="sulphates">Sulfatos (g/dm³)</label>
+            <div class="field-hint">Relacionados con la conservación; influyen en sabor y estabilidad.</div>
+            <input type="number" id="sulphates" name="sulphates" step="0.01" required />
+          </div>
+
+          <div class="field-group">
+            <label for="alcohol">Alcohol (% vol)</label>
+            <div class="field-hint">Grado alcohólico del vino.</div>
+            <input type="number" id="alcohol" name="alcohol" step="0.1" required />
+          </div>
+
+          <button type="submit">
+            Ejecutar predicción
+          </button>
+        </form>
+      </div>
+
+      <!-- RESULTADO -->
+      <div class="card result-card">
+        <span class="pill">Salida del modelo</span>
+        <div class="result-header">
+          <h2 class="section-title">Resultado</h2>
+          <span id="result-badge" class="badge"></span>
+        </div>
+
+        <p id="result-text">Sin predicción todavía.</p>
+
+        <div class="json-label">Respuesta completa de la API (para referencia técnica):</div>
+        <pre id="raw-json">{}</pre>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function predictWine() {
+      const wineType = document.getElementById("wine_type").value;
+      const body = {};
+
+      const features = [
+        "fixed_acidity",
+        "volatile_acidity",
+        "citric_acid",
+        "residual_sugar",
+        "chlorides",
+        "free_sulfur_dioxide",
+        "total_sulfur_dioxide",
+        "density",
+        "pH",
+        "sulphates",
+        "alcohol"
+      ];
+
+      for (const f of features) {
+        const value = document.getElementById(f).value;
+        body[f] = parseFloat(value);
+      }
+
+      const url = wineType === "red" ? "/predict/red" : "/predict/white";
+
+      try {
+        const resp = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+
+        const data = await resp.json();
+        document.getElementById("raw-json").textContent = JSON.stringify(data, null, 2);
+
+        const resultText = document.getElementById("result-text");
+        const resultBadge = document.getElementById("result-badge");
+
+        if (data.results && data.results.length > 0) {
+          const pred = data.results[0].prediction;
+          const proba = data.results[0].prob_good_wine;
+
+          if (pred === 1) {
+            resultText.className = "good";
+            resultText.textContent =
+              `El modelo estima que el vino es de BUENA calidad (clase 1).\n` +
+              `Probabilidad aproximada de ser considerado bueno: ${(proba * 100).toFixed(2)}%.`;
+            resultBadge.className = "badge badge-good";
+            resultBadge.textContent = "Vino bueno";
+          } else {
+            resultText.className = "bad";
+            resultText.textContent =
+              `El modelo estima que el vino NO se clasifica como bueno (clase 0).\n` +
+              `Probabilidad aproximada de ser considerado bueno: ${(proba * 100).toFixed(2)}%.`;
+            resultBadge.className = "badge badge-bad";
+            resultBadge.textContent = "Vino no bueno";
+          }
+        } else if (data.error) {
+          resultText.className = "bad";
+          resultText.textContent = "Error: " + data.error;
+          resultBadge.className = "badge badge-bad";
+          resultBadge.textContent = "Error";
+        } else {
+          resultText.className = "";
+          resultText.textContent = "Respuesta inesperada.";
+          resultBadge.className = "badge";
+          resultBadge.textContent = "";
+        }
+
+      } catch (err) {
+        const resultText = document.getElementById("result-text");
+        const resultBadge = document.getElementById("result-badge");
+        resultText.className = "bad";
+        resultText.textContent = "Error de conexión o servidor.";
+        document.getElementById("raw-json").textContent = err.toString();
+        resultBadge.className = "badge badge-bad";
+        resultBadge.textContent = "Error";
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,5 +1,5 @@
-from flask import Flask, request, jsonify
-from app.models_loader import model_white, model_red
+from flask import Flask, request, jsonify, render_template  
+from models_loader import model_white, model_red
 
 
 app = Flask(__name__)
@@ -18,6 +18,9 @@ FEATURES = [
     "alcohol"
 ]
 
+@app.route("/", methods=["GET"])
+def index():
+    return render_template("index.html", features=FEATURES)
 
 @app.route("/predict/white", methods=["POST"])
 def predict_white():
